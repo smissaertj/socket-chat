@@ -2,12 +2,15 @@
 /* eslint-disable no-undef */
 const socket = io();
 
-socket.on( "countUpdated", ( count ) => {
-  console.log( "The count has been updated!", count );
+socket.on( "message", ( message ) => {
+  console.log( message );
 } );
 
-const incrementCount = document.querySelector( "#increment" );
-incrementCount.addEventListener( "click", ()=> {
-  console.log( "Clicked" );
-  socket.emit( "increment" );
+const messageForm = document.querySelector( "#message-form" );
+messageForm.addEventListener( "submit", ( e ) => {
+  e.preventDefault();
+  const messageEl = document.querySelector( "#message" );
+  const message = messageEl.value;
+  socket.emit( "sendMessage", message );
+  messageEl.value = "";
 } );
