@@ -3,17 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <title>SocketChat</title>
+  <link rel="icon" href="/img/favicon.png">
+  <link rel="stylesheet" href="/css/styles.min.css">
 </head>
 <body>
-  <h1>SocketChat</h1>
-    <form id="message-form">
-      <label for="message">
-        <input type="submit" value="Send">
-      </label>
-      <input type="text" id="message" name="message" required>
-      <br>
-  </form>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/chat.js"></script>
+  <div class="centered-form">
+    <div class="centered-form__box">
+      <h1>SocketChat</h1>
+      <form action="/chat.html">
+        <label for="username">Display Name</label>
+        <input type="text" id="username" name="username" placeholder="Display Name" required>
+        <label for="room">Room</label>
+        <input type="text" id="room" name="room" placeholder="Room" required>
+        <button>Join</button>
+      </form>
+    </div>
+  </div>
 </body>
 </html>

@@ -2,6 +2,9 @@ const path = require( "node:path" );
 const http = require( "node:http" );
 const express = require( "express" );
 const socketio = require( "socket.io" );
+const Filter = require( "bad-words" );
+const { generateMessage, generateLocationMessage } = require( "./utils/messages" );
+const { addUser, removeUser, getUser, getUsersInRoom } = require( "./utils/users" );
 
 const app = express();
 const server = http.createServer( app );
@@ -14,13 +17,49 @@ app.use( express.static( publicDirectoryPath ) );
 
 io.on( "connection", ( socket ) => {
   console.log( "New WebSocket connection" );
-  socket.emit( "message", "Welcome!" );
-  socket.broadcast.emit( "message", "A new user has joined!" );
-  socket.on( "sendMessage", ( message ) => {
-    io.emit( "message", message );
+
+  socket.on( "join", ( { username, room }, callback ) => {
+    const { error, user }= addUser( { id: socket.id, username, room } );
+    if( error ){
+      return callback( error );
+    }
+    socket.join( user.room );
+    socket.emit( "message", generateMessage( user.room, "Welcome!" ) );
+    socket.broadcast.to( room ).emit( "message", generateMessage( `${user.username} has joined!` ) );
+    io.to( user.room ).emit( "roomData", {
+      room: user.room,
+      users: getUsersInRoom( user.room )
+    } );
+    callback();
   } );
+
+  socket.on( "sendMessage", ( message, callback ) => {
+    const user = getUser( socket.id );
+
+    const filter = new Filter();
+    if( filter.isProfane( message ) ){
+      return callback( "Profanity is not allowed!" );
+    }
+
+    io.to( user.room ).emit( "message", generateMessage( user.username, message ) );
+    callback();
+  } );
+
   socket.on( "disconnect", ()=> {
-    io.emit( "message", "A user has left!" );
+    const user = removeUser( socket.id );
+    if( user ){
+      io.to( user.room ).emit( "message", generateMessage( user.room, `${user.username} has left the room.` ) );
+      io.to( user.room ).emit( "roomData", {
+        room: user.room,
+        users: getUsersInRoom( user.room )
+      } );
+    }
+  } );
+
+  socket.on( "sendLocation", ( coords, callback ) => {
+    const user = getUser( socket.id );
+    io.to( user.room ).emit( "locationMessage", generateLocationMessage( user.username, coords ) );
+    callback( "Location shared!" );
   } );
 } );
 
