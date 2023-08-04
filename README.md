@@ -13,4 +13,7 @@ npm run start
 ```
 Open a browser and head over to the url of the application, e.g. `http://localhost:3000`. Enter a username and room, click `Join`.  
 
+### Demo:
+[https://socket-chat-5wmet.kinsta.app/](https://socket-chat-5wmet.kinsta.app/)
+
 ![](screenshot.png)
